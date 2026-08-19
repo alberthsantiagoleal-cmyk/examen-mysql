@@ -1,41 +1,48 @@
 use Examen;
 
 -- 1. Numero de pacientes atendidos por medico
-SELECT COUNT(documento_asignado),doctor_asignado
-FROM gestion_pacientes 
-group by doctor_asignado;
+SELECT documento_asignado, COUNT(*) 
+FROM gestion_pacientes
+GROUP BY documento_asignado;
 
 -- 2. Numero de medicos que estan actualmente en sustitucion
-SELECT COUNT(documento_sustituto), nombre_sustituto
+SELECT documento_sustituto, nombre_sustituto
 FROM gestion_sustitutos
-group by nombre_sustituto;
+WHERE CURDATE() BETWEEN fecha_ini AND fecha_fin;
 
 -- 3. Empleados con mas de 10 dias de vacaciones disfrutadas
-SELECT nombre, apellido
+SELECT nombre, apellido, DATEDIFF(fecha_fin, fecha_ini) AS dias_vacaciones
 FROM control_vacaciones
-where estado = "disfrutada" and ;
-
--- 4. Medicos que actualmente estan realizando una sustitucion
-SELECT COUNT(documento_sustituto), nombre_sustituto 
+WHERE estado = 'disfrutada'
+AND DATEDIFF(fecha_fin, fecha_ini) > 10;
+-- 4. Médicos que actualmente están realizando una sustitución
+SELECT documento_sustituto, nombre_sustituto
 FROM gestion_sustitutos
-group by nombre_sustituto;
+WHERE CURDATE() BETWEEN fecha_ini AND fecha_fin;
 
--- 5. Medicos con mayor cantidad de horas de consulta en la semana
-SELECT nombre
-FROM gestion_medicos
-order by ASC nombre;
+-- 5. Médicos con mayor cantidad de horas de consulta en la semana
+SELECT nombre, apellido, horas_semana
+FROM consultas
+ORDER BY horas_semana DESC;
 
--- 6. Horas totales de consulta por medico por dia de la semana
-SELECT nombre, fecha_inicio, fecha_fin
-from gestion_medicos 
-group by nombre;
-
--- 7. Numero de sustituciones realizadas por cada medico sustituto
-SELECT COUNT(documento_sustituto), nombre_sustituto  
+-- 6. Horas totales de consulta por médico por día de la semana
+SELECT nombre, apellido, dia_semana,
+       hora_fin - hora_inicio AS horas_consulta
+FROM gestion_medicos;
+-- 7. Número de sustituciones realizadas por cada médico sustituto
+SELECT documento_sustituto, nombre_sustituto,
+       COUNT(*) AS cantidad_sustituciones
 FROM gestion_sustitutos
-group by nombre_sustituto;
+GROUP BY documento_sustituto, nombre_sustituto;
 
--- 8. Medicos con mas de 5 pacientes y total de horas de consulta en la semana
-SELECT 
-FROM gestion_pacientes
-where 
+-- 8. Médicos con más de 5 pacientes y total de horas de consulta en la semana
+SELECT m.nombre, m.apellido,
+       COUNT(p.documento) AS cantidad_pacientes,
+       c.horas_semana
+FROM gestion_medicos m
+JOIN gestion_pacientes p
+    ON m.documento = p.documento_asignado
+JOIN consultas c
+    ON m.documento = c.documento
+GROUP BY m.documento, m.nombre, m.apellido, c.horas_semana
+HAVING COUNT(p.documento) > 5;
