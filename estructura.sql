@@ -1,9 +1,4 @@
-DROP TABLE IF EXISTS consultas;
-DROP TABLE IF EXISTS control_vacaciones;
-DROP TABLE IF EXISTS gestion_sustitutos;
-DROP TABLE IF EXISTS gestion_pacientes;
-DROP TABLE IF EXISTS gestion_empleados;
-DROP TABLE IF EXISTS gestion_medicos;
+
 
 CREATE TABLE gestion_medicos (
     documento     INT PRIMARY KEY,
